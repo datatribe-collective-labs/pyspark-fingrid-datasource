@@ -11,6 +11,14 @@ requires-python = ">=3.10"
 dependencies = [
 ]
 
+[tool.poetry]
+name = "pyspark-fingrid-datasource"
+version = "0.1.0"
+description = "Access fingrid datasets via Apache Spark"
+authors = ["Chanukya Pekala <chanukya.pekala@gmail.com>"]
+readme = "README.md"
+packages = [{include = "pyspark_fingrid", from = "src"}]
+
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
