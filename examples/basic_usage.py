@@ -155,7 +155,47 @@ def main():
             trend_analysis.show(10, truncate=False)
 
             # Trend summary
+            print("\n📊 Trend summary:")
             trend_summary = spark.sql("""
-                SELECT 
+                SELECT
                     trend,
                     COUNT(*) as count,
+                    ROUND(AVG(change_mw), 2) as avg_change_mw
+                FROM (
+                    SELECT
+                        production_mw - LAG(production_mw) OVER (ORDER BY startTime) as change_mw,
+                        CASE
+                            WHEN production_mw > LAG(production_mw) OVER (ORDER BY startTime) THEN 'Increasing'
+                            WHEN production_mw < LAG(production_mw) OVER (ORDER BY startTime) THEN 'Decreasing'
+                            ELSE 'Stable'
+                        END as trend
+                    FROM production
+                )
+                WHERE trend IS NOT NULL
+                GROUP BY trend
+                ORDER BY count DESC
+            """)
+            trend_summary.show(truncate=False)
+
+        else:
+            print("❌ No data available for analysis")
+
+    except Exception as e:
+        print(f"❌ Error in trend analysis: {e}")
+
+    # Summary
+    print("\n" + "="*60)
+    print("✅ Examples completed!")
+    print("\n💡 Next steps:")
+    print("   - Explore more datasets using list_available_datasets()")
+    print("   - Combine multiple datasets for advanced analysis")
+    print("   - Use PySpark's DataFrame API for custom transformations")
+    print("   - Check out energy_analysis.py for more advanced examples")
+
+    # Stop Spark session
+    spark.stop()
+    print("\n🛑 Spark session stopped")
+
+
+if __name__ == "__main__":
+    main()
